@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PwaClient } from "./components/PwaClient";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { BalanceDonut, MonthlyBars, type MonthPoint } from "./components/DashboardCharts";
 
 type Kind = "in" | "out";
 
@@ -96,7 +98,7 @@ function Column({
   const [date, setDate] = useState(todayISO());
   const [amount, setAmount] = useState<string>("");
 
-  const header = isIn ? "Entradas" : "Saídas";
+  const header = isIn ? "Entradas" : "Despesas";
   const hint = isIn ? "Salário, investimento, etc." : "Contas, compras, etc.";
 
   const submit = (ev: React.FormEvent) => {
@@ -304,6 +306,28 @@ const onImportFile = async (file: File) => {
   const totalIn = useMemo(() => incomes.reduce((acc, e) => acc + e.amount, 0), [incomes]);
   const totalOut = useMemo(() => outcomes.reduce((acc, e) => acc + e.amount, 0), [outcomes]);
   const balance = totalIn - totalOut;
+  const monthly: MonthPoint[] = useMemo(() => {
+  const map = new Map<string, { in: number; out: number }>();
+
+  for (const e of entries) {
+    const [yyyy, mm] = e.date.split("-"); // YYYY-MM-DD
+    const key = `${yyyy}-${mm}`;
+    const acc = map.get(key) || { in: 0, out: 0 };
+    if (e.kind === "in") acc.in += e.amount;
+    else acc.out += e.amount;
+    map.set(key, acc);
+  }
+
+  const points = Array.from(map.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, v]) => {
+      const [yyyy, mm] = key.split("-");
+      const label = `${mm}/${yyyy.slice(2)}`; // MM/YY
+      return { key, label, in: v.in, out: v.out };
+    });
+  return points.slice(-6);
+}, [entries]);
+
 
   return (
     <main className="page">
@@ -323,9 +347,18 @@ const onImportFile = async (file: File) => {
             Importar JSON
           </button>
 
-          <button type="button" className="danger" onClick={clearAll}>
-            Limpar tudo
+          <button
+            type="button"
+            className="dangerToolbar"
+            onClick={clearAll}
+            aria-label="Limpar tudo"
+            title="Apagar todos os lançamentos"
+            >
+            <span className="btnIcon" aria-hidden="true">🗑️</span>
+            <span className="btnText">Limpar tudo</span>
           </button>
+
+          <ThemeToggle />
 
           <PwaClient />
 
@@ -342,6 +375,23 @@ const onImportFile = async (file: File) => {
   />
 </div>
       </header>
+      <section className="dashGrid">
+  <div className="dashCard">
+    <div className="dashHead">
+      <h3>Balanço atual</h3>
+      <p className="muted">Visão rápida do saldo e proporção de despesas.</p>
+    </div>
+    <BalanceDonut totalIn={totalIn} totalOut={totalOut} />
+  </div>
+
+  <div className="dashCard">
+    <div className="dashHead">
+      <h3>Evolução mensal (Entradas x Saídas)</h3>
+      <p className="muted">Últimos meses com movimentação.</p>
+    </div>
+    <MonthlyBars data={monthly} />
+  </div>
+</section>
 
       <section className="grid">
         <Column kind="in" entries={incomes} onAdd={addEntry} onRemove={removeEntry} />
@@ -355,7 +405,7 @@ const onImportFile = async (file: File) => {
             <strong>{formatBRL(totalIn)}</strong>
           </div>
           <div className="saldoRow">
-            <span className="muted">Total saídas</span>
+            <span className="muted">Total despesas</span>
             <strong>{formatBRL(totalOut)}</strong>
           </div>
           <div className="divider" />
