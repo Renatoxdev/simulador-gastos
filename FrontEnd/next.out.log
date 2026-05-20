@@ -1,0 +1,16 @@
+
+> simulador-gastos@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+
+✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\Renat\\projetos\\Projetos Sérios\\Simulador Gastos\\FrontEnd',
+  testMode: true
+}
+✓ Ready in 705ms
+ GET / 200 in 594ms (compile: 472ms, render: 122ms)
+ GET / 200 in 48ms (compile: 5ms, render: 43ms)

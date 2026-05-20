@@ -1,0 +1,6 @@
+INFO:     Started server process [7980]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): [winerror 10048] normalmente só é permitido uma utilização de cada endereço de socket (protocolo/endereço de rede/porta)
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
