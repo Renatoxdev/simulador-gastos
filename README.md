@@ -1,4 +1,4 @@
-# Simulador de Gastos
+# Gestão financeira de gastos
 
 Aplicacao full stack para controle simples de gastos, rendas e saldo financeiro.
 
